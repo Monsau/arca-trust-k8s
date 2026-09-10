@@ -1,30 +1,30 @@
+{{- if .Values.enabled -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: trust
-  namespace: trust
+  name: {{ include "trust.fullname" . }}
+  namespace: {{ .Values.namespaceOverride | default .Release.Namespace }}
   labels:
-    app.kubernetes.io/name: trust
-    app.kubernetes.io/part-of: arca-suite
+    {{- include "trust.labels" . | nindent 4 }}
 spec:
-  replicas: 2
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: trust
+      {{- include "trust.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: trust
-        app.kubernetes.io/part-of: arca-suite
+        {{- include "trust.selectorLabels" . | nindent 8 }}
     spec:
-      serviceAccountName: trust
+      serviceAccountName: {{ include "trust.serviceAccountName" . }}
       securityContext:
         runAsNonRoot: true
         runAsUser: 10001
         fsGroup: 10001
       containers:
-        - name: trust
-          image: registry.arca.local/arca-trust:0.1.0
+        - name: {{ include "trust.fullname" . }}
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: 8090
           envFrom:
@@ -57,9 +57,5 @@ spec:
             failureThreshold: 30
             periodSeconds: 2
           resources:
-            requests:
-              cpu: 100m
-              memory: 256Mi
-            limits:
-              cpu: "1"
-              memory: 512Mi
+            {{- toYaml .Values.resources | nindent 12 }}
+{{- end -}}
