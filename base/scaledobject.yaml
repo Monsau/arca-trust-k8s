@@ -1,0 +1,18 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: trust
+  namespace: trust
+spec:
+  scaleTargetRef:
+    name: trust
+  minReplicaCount: 0
+  maxReplicaCount: 10
+  cooldownPeriod: 300
+  triggers:
+    - type: kafka
+      metadata:
+        bootstrapServers: kafka.platform.svc.cluster.local:9092
+        consumerGroup: trust-workers
+        topic: trust.certification.completed
+        lagThreshold: "100"

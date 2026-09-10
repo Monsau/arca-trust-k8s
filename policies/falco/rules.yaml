@@ -1,0 +1,11 @@
+# Runtime detection rules for the trust namespace.
+- rule: trust Shell Spawned in Container
+  desc: Detect shell processes in trust pods
+  condition: spawned_process and container and k8s.ns.name=trust and proc.name in (bash, sh)
+  output: "Shell spawned in trust (user=%user.name command=%proc.cmdline)"
+  priority: WARNING
+- rule: trust Sensitive File Read
+  desc: Detect reads of sensitive files in trust pods
+  condition: open_read and container and k8s.ns.name=trust and fd.name in (/etc/shadow, /etc/sudoers)
+  output: "Sensitive file read in trust (user=%user.name file=%fd.name)"
+  priority: CRITICAL
