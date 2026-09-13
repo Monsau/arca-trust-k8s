@@ -6,12 +6,14 @@ metadata:
   namespace: {{ .Values.namespaceOverride | default .Release.Namespace }}
   labels:
     {{- include "trust.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
 spec:
   type: {{ .Values.service.type }}
   selector:
-    {{- include "trust.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/name: arca-trust
+    app.kubernetes.io/component: api
   ports:
     - name: http
       port: {{ .Values.service.port }}
-      targetPort: 8090
+      targetPort: http
 {{- end -}}

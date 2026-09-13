@@ -6,56 +6,43 @@ metadata:
   namespace: {{ .Values.namespaceOverride | default .Release.Namespace }}
   labels:
     {{- include "trust.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "trust.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/name: arca-trust
+      app.kubernetes.io/component: api
   template:
     metadata:
       labels:
-        {{- include "trust.selectorLabels" . | nindent 8 }}
+        {{- include "trust.labels" . | nindent 8 }}
+        app.kubernetes.io/component: api
     spec:
       serviceAccountName: {{ include "trust.serviceAccountName" . }}
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 10001
-        fsGroup: 10001
       containers:
-        - name: {{ include "trust.fullname" . }}
-          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        - name: api
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: 8090
-          envFrom:
-            - configMapRef:
-                name: trust-config
-          env:
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: trust-secrets
-                  key: DATABASE_URL
+            - { name: http, containerPort: 8080 }
           securityContext:
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
+            runAsNonRoot: {{ .Values.securityContext.runAsNonRoot }}
+            runAsUser: {{ .Values.securityContext.runAsUser }}
+            readOnlyRootFilesystem: {{ .Values.securityContext.readOnlyRootFilesystem }}
+            allowPrivilegeEscalation: {{ .Values.securityContext.allowPrivilegeEscalation }}
             capabilities:
               drop: ["ALL"]
-          livenessProbe:
-            exec:
-              command: ["/app/scripts/healthcheck.sh"]
-            periodSeconds: 30
-          readinessProbe:
-            httpGet:
-              path: /readyz
-              port: 8090
-            periodSeconds: 10
-          startupProbe:
-            httpGet:
-              path: /healthz
-              port: 8090
-            failureThreshold: 30
-            periodSeconds: 2
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          startupProbe:
+            httpGet: { path: /healthz, port: http }
+            failureThreshold: 12
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: { path: /healthz, port: http }
+            periodSeconds: 15
+          readinessProbe:
+            httpGet: { path: /readyz, port: http }
+            periodSeconds: 10
 {{- end -}}
