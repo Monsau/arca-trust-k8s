@@ -31,3 +31,7 @@ securityContext:
   runAsUser: 10001
   readOnlyRootFilesystem: true
   allowPrivilegeEscalation: false
+
+env:
+  KAFKA_BOOTSTRAP_SERVERS: "kafka.platform.svc.cluster.local:9092"
+  TRUST_KAFKA_CONSUME: "1"

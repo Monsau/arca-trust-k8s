@@ -35,6 +35,11 @@ spec:
               drop: ["ALL"]
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: {{ .Values.env.KAFKA_BOOTSTRAP_SERVERS | quote }}
+            - name: TRUST_KAFKA_CONSUME
+              value: {{ .Values.env.TRUST_KAFKA_CONSUME | quote }}
           startupProbe:
             httpGet: { path: /healthz, port: http }
             failureThreshold: 12

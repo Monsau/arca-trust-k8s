@@ -8,4 +8,5 @@ data:
   LOG_LEVEL: "INFO"
   STORE_BACKEND: "sql"
   KAFKA_BOOTSTRAP_SERVERS: "kafka.platform.svc.cluster.local:9092"
+  TRUST_KAFKA_CONSUME: "1"
   OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.platform.svc.cluster.local:4317"
