@@ -9,4 +9,6 @@ data:
   STORE_BACKEND: "sql"
   KAFKA_BOOTSTRAP_SERVERS: "kafka.platform.svc.cluster.local:9092"
   TRUST_KAFKA_CONSUME: "1"
+  # Optional ArcaQ PROV-O trace consumer (disabled by default).
+  TRUST_ARCAQ_PROVO_ENABLED: "false"
   OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.platform.svc.cluster.local:4317"
