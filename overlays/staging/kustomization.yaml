@@ -6,3 +6,11 @@ resources:
 commonLabels:
   environment: staging
 # Per-environment patches (replicas, resources, hosts) are added in later passes.
+patches:
+  - target:
+      kind: ConfigMap
+      name: trust-config
+    patch: |-
+      - op: replace
+        path: /data/ENVIRONMENT
+        value: "staging"
